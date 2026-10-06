@@ -335,31 +335,24 @@
         },
         template: `
             <div v-if="!authenticated" class="auth">
-                <canvas v-rain class="rain" aria-hidden="true"></canvas>
                 <div class="auth-wrap">
-                    <ul class="boot" aria-hidden="true">
-                        <li style="--d:0">[ OK ] mounting /dev/catalog</li>
-                        <li style="--d:1">[ OK ] handshake with LavaLust API</li>
-                        <li style="--d:2">[ OK ] jwt module loaded</li>
-                        <li style="--d:3" class="warn">[WAIT] awaiting credentials<span class="cursor"></span></li>
-                    </ul>
+                    <a class="brand" href="./" aria-label="LavaLust Products home"><svg class="brand-mark" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="16" width="15" height="4" rx="1"/></svg><span>LavaLust</span></a>
                     <section class="win auth-card">
-                        <div class="win-bar"><i></i><i></i><i></i><span>auth@lavalust:~ {{ authMode === 'login' ? 'sign-in' : 'register' }}</span></div>
-                        <div class="win-body">
-                            <h1 class="glitch" data-text="LAVALUST">LAVALUST</h1>
+                                                <div class="win-body">
+                            <h1>{{ authMode === 'login' ? 'Welcome back' : 'Create your account' }}</h1>
                             <p class="sub">{{ authMode === 'login' ? 'Sign in to manage your product catalog.' : 'Registration creates a standard account.' }}</p>
                             <div v-if="errorMessage" class="notice notice-error" role="alert">{{ errorMessage }}</div>
                             <form @submit.prevent="authMode === 'login' ? signIn() : register()">
                                 <label for="username">Username</label>
-                                <input id="username" v-model.trim="credentials.username" autocomplete="username" required maxlength="100" placeholder="your_username">
+                                <input id="username" v-model.trim="credentials.username" autocomplete="username" required maxlength="100" placeholder="Your username">
                                 <template v-if="authMode === 'register'">
                                     <label for="email">Email address</label>
                                     <input id="email" v-model.trim="credentials.email" type="email" autocomplete="email" required placeholder="you@example.com">
                                 </template>
                                 <label for="password">Password</label>
-                                <input id="password" v-model="credentials.password" type="password" :autocomplete="authMode === 'login' ? 'current-password' : 'new-password'" :minlength="authMode === 'register' ? 8 : 1" required placeholder="••••••••">
+                                <input id="password" v-model="credentials.password" type="password" :autocomplete="authMode === 'login' ? 'current-password' : 'new-password'" :minlength="authMode === 'register' ? 8 : 1" required placeholder="Enter your password">
                                 <button class="button button-primary button-full" type="submit" :disabled="authBusy">
-                                    {{ authBusy ? 'Authenticating...' : (authMode === 'login' ? 'Sign in' : 'Create account') }}
+                                    {{ authBusy ? 'Please wait...' : (authMode === 'login' ? 'Sign in' : 'Create account') }}
                                 </button>
                             </form>
                             <p class="auth-switch">
@@ -397,11 +390,10 @@
                 <main class="main">
                     <header class="page-head">
                         <div>
-                            <p class="prompt"><b>{{ currentUser?.username || 'user' }}@lavalust</b>:~/catalog$ ls -l<span class="cursor"></span></p>
                             <h1>Products</h1>
                             <p class="prompt">Catalog, pricing and available stock.</p>
                         </div>
-                        <button v-if="isAdmin" class="button button-primary" type="button" @click="openCreate">+ Add product</button>
+                        <button v-if="isAdmin" class="button button-primary" type="button" @click="openCreate">Add product</button>
                     </header>
 
                     <div v-if="errorMessage && !modalOpen" class="notice notice-error" role="alert">{{ errorMessage }}</div>
@@ -417,18 +409,18 @@
                     <section class="panel">
                         <div class="toolbar">
                             <label class="search-box">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"></svg>
-                                <input ref="searchInput" v-model="search" type="search" placeholder="name, description or ID" aria-label="Search products">
+                                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+                                <input ref="searchInput" v-model="search" type="search" placeholder="Search by name, description or ID" aria-label="Search products">
                                 <kbd aria-hidden="true">/</kbd>
                             </label>
-                            <p v-if="products.length" class="toolbar-count">{{ filteredProducts.length }} / {{ products.length }} rows</p>
+                            <p v-if="products.length" class="toolbar-count">{{ filteredProducts.length }} of {{ products.length }}</p>
                         </div>
 
-                        <div v-if="loading" class="table-state" role="status">&gt; fetching catalog...</div>
+                        <div v-if="loading" class="table-state" role="status">Loading catalog...</div>
                         <div v-else-if="!filteredProducts.length" class="empty-state">
                             <h3>{{ search ? 'No matching products' : 'No products yet' }}</h3>
                             <p>{{ search ? 'Try another name or ID, or clear the search.' : 'Add your first product to start tracking inventory.' }}</p>
-                            <button v-if="!search && isAdmin" class="button button-primary" type="button" @click="openCreate">+ Add product</button>
+                            <button v-if="!search && isAdmin" class="button button-primary" type="button" @click="openCreate">Add product</button>
                         </div>
                         <div v-else class="table-wrap">
                             <table>
@@ -457,10 +449,8 @@
 
                 <div v-if="modalOpen && isAdmin" class="scrim" @click.self="modalOpen = false">
                     <section class="win drawer" role="dialog" aria-modal="true" :aria-labelledby="editingId ? 'edit-title' : 'create-title'">
-                        <div class="win-bar"><i></i><i></i><i></i><span>{{ editingId ? 'nano product_' + editingId + '.json' : 'touch new_product.json' }}</span>
-                            <button class="drawer-close" type="button" aria-label="Close" @click="modalOpen = false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-                        </div>
-                        <h2 :id="editingId ? 'edit-title' : 'create-title'">{{ editingId ? 'Edit product' : 'Add product' }}</h2>
+                        <div class="drawer-head"><h2 :id="editingId ? 'edit-title' : 'create-title'">{{ editingId ? 'Edit product' : 'Add product' }}</h2>
+                            <button class="drawer-close" type="button" aria-label="Close" @click="modalOpen = false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
                         <form class="drawer-form" @submit.prevent="saveProduct">
                             <div class="drawer-body">
                                 <label for="product-name">Product name <span class="required">(required)</span></label>
@@ -508,37 +498,6 @@
         el._raf = requestAnimationFrame(step);
     }
 
-    app.directive('rain', {
-        mounted(canvas) {
-            const ctx = canvas.getContext('2d');
-            const glyphs = '01<>/{}[]$#%&=+*ABCDEF'.split('');
-            const size = 16;
-            let drops = [];
-            const resize = () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => Math.random() * -50);
-            };
-            const draw = () => {
-                ctx.fillStyle = 'rgba(4,7,13,.12)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.font = size + 'px monospace';
-                drops.forEach((y, i) => {
-                    ctx.fillStyle = Math.random() > .96 ? '#8b5cff' : '#27e1ff';
-                    ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], i * size, y * size);
-                    drops[i] = y * size > canvas.height && Math.random() > .975 ? 0 : y + 1;
-                });
-            };
-            resize();
-            window.addEventListener('resize', resize);
-            canvas._timer = setInterval(draw, 55);
-            canvas._resize = resize;
-        },
-        unmounted(canvas) {
-            clearInterval(canvas._timer);
-            window.removeEventListener('resize', canvas._resize);
-        }
-    });
 
     app.mount('#app');
 }());
